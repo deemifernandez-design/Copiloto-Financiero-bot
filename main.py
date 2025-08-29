@@ -115,3 +115,11 @@ def handle(t, uid):
     if t.lower() in ("dolar", "/dolar", "/usd"):
         return "Dólar (mock): Oficial $1000 | MEP $1250 | Blue $1280"
     return "No te entendí. Probá /start"
+    if t == "/reset":
+        con = sqlite3.connect(DB_PATH)
+        cur = con.cursor()
+        cur.execute("DELETE FROM movimientos WHERE user_id=?", (uid,))
+        cur.execute("DELETE FROM deudas WHERE user_id=?", (uid,))
+        con.commit()
+        con.close()
+        return "Todos tus datos fueron borrados ✅"
