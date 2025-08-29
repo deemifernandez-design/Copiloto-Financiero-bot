@@ -65,14 +65,18 @@ def startup(): init_db()
 @app.get("/")
 def health(): return {"ok": True}
 
-@app.post("/webhook")
+@app.api_route("/webhook", methods=["POST", "GET"])
 async def webhook(req: Request):
+    if req.method == "GET":
+        # Responder 200 OK al ping/verificación
+        return {"ok": True, "webhook": "alive"}
+    # ↓ lo demás igual
     data = await req.json()
     if "message" in data and "text" in data["message"]:
         chat_id = data["message"]["chat"]["id"]
         text = data["message"]["text"].strip()
-        uid = get_user_id(chat_id)
-        reply = handle(text, uid)
+        user_id = get_user_id(chat_id)
+        reply = handle(text, user_id)
         requests.post(f"{API}/sendMessage",
                       json={"chat_id": chat_id, "text": reply, "parse_mode": "Markdown"})
     return {"ok": True}
